@@ -39,7 +39,7 @@ def string2grbl(str, font):
     for c in str:
         print(font[c])
 
-font = load_font("CHR_font/default.chr", 1./4, 20)
+font = load_font("CHR_font/default.chr", 1./10, 20)
 
 print "G21"
 print "F1000"

@@ -24,12 +24,12 @@ import argparse
 RX_BUFFER_SIZE = 64
 
 # Define command line argument interface
-parser = argparse.ArgumentParser(description='''
+parser = argparse.ArgumentParser(description="""
 Stream g-code file to grbl. (pySerial and argparse libraries required)
 [example USAGE :$>]
-echo "G1X10Y10" | ./streamin.py /dev/ttyUSB1] #<= echo gcode to the machine
-cat grbl.nc | ./streamin.py /dev/ttyUSB1]     #<= pipe a grbl 'gcoded' file
-''')
+echo "G1X10Y10" | ./streamin.py /dev/ttyUSB1 #<= echo gcode to the machine
+cat grbl.nc | ./streamin.py /dev/ttyUSB1     #<= pipe a grbl 'gcoded' file
+""", formatter_class=argparse.RawDescriptionHelpFormatter )
 parser.add_argument('gcode_file', nargs='?', type=argparse.FileType('r'), default=sys.stdin,
         help='g-code filename to be streamed, or stdin')
 parser.add_argument('device_file', default="/dev/ttyUSB0",

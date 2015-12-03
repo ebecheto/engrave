@@ -6,22 +6,15 @@ import argparse
 parser = argparse.ArgumentParser(description='echo "FOO_B@R" | alphNum2gcode.py generates gcode of the letters to be used with the laser engrave machine')
 parser.add_argument('-sx', type=float, default=1.0, help='sx scale, 1.0 if not specified')
 parser.add_argument('-sy', type=float, help='sy scale = sx if not specified')
+parser.add_argument('-ss', type=float, help='ss : spacing between char, default=2.0/sx')
+parser.add_argument('-ssy', type=float, help='newline space, default = ss ')
 args = parser.parse_args()
 
 sy=args.sy if args.sy else args.sx
 sx=args.sx
-
-# sx = 2
-# sy = 2
-ss = 2.0/sx #<== step in X axis after each letters 
-ssy = ss
-
-name="AB12gcode"
-chars=[]
-chars.extend(name)
-print "(*",
-print chars,
-print "*)"
+ss = args.ss if args.ss else 2.0/sx #<== step in X axis after each letters 
+ssy = args.ssy if args.ssy else ss
+#<== number of step of \n for newline goback feature
 
 varViewer=True
 #Ton='M03 G04 P0.1'+' G0Z0' if varViewer is True else ''
@@ -30,32 +23,32 @@ Tof='M05'+' G0Z1' if varViewer is True else ''
 # OK, TODO, change it to a parameter like, for tool specific purpose
 
 ## HOME MADE FONT DEFINITION, will be completed later on
-def char2grbl(x):
+def char2grbl(x, NBE=2):
     return {
         '0':
-         """(number 0)
-         M03 G04 P0.1 G0Z-1
-         G1 X{:.3f}
-         G1 Y{:.3f}
-         G1 X{:.3f}
-         G1 Y{:.3f}
-         M05G0Z1
-         G0 X{:.3f}
-         """.format(3*sx, 4*sy, -3*sx, -4*sy, (3+ss)*sx),
+         """(number 0 zero)
+M03G04P0.1G0Z-1
+G1 X{:.3f}
+G1 Y{:.3f}
+G1 X{:.3f}
+G1 Y{:.3f}
+M05G0Z1
+G0 X{:.3f}
+""".format(3*sx, 4*sy, -3*sx, -4*sy, (3+ss)*sx),
 
         '1':
          """(number 1)
-         G0 X{:.3f}
-         M03 G04 P0.1 G0Z-1
-         G1 Y{:.3f}
-         M05G0Z1
-         G0 X{:.3f} Y{:.3f}
-         """.format(1*sx, 4*sy, ss*sx, -4*sy),
+G0 X{:.3f}
+M03G04P0.1G0Z-1
+G1 Y{:.3f}
+M05G0Z1
+G0 X{:.3f} Y{:.3f}
+""".format(1*sx, 4*sy, ss*sx, -4*sy),
 
         '2':
          """(number 2)
          G0 Y{:.3f}
-         M03 G04 P0.1 G0Z-1
+         M03G04P0.1G0Z-1
          G1 X{:.3f}
          G1 Y{:.3f}
          G1 X{:.3f}
@@ -67,25 +60,27 @@ def char2grbl(x):
 
         '3':
          """(number 3)
-         M03 G04 P0.1 G0Z-1
+         M03G04P0.1G0Z-1
          G1 X{:.3f}
          G1 Y{:.3f}
          G1 X{:.3f}
+         M03G04P0.1G0Z-1
          G1 X{:.3f}
+         M05G0Z1
          G1 Y{:.3f}
          G1 X{:.3f}
          M05G0Z1
          G0 X{:.3f} Y{:.3f}
-         """.format(3*sx, 2*sy, -3*sx, 3*sx, 2*sy, -3*sx, 5*sx, -4*sy),
+         """.format(3*sx, 2*sy, -3*sx, 3*sx, 2*sy, -3*sx, (2+ss)*sx, -4*sy),
 
         '4':
          """(number 4)
          G0 X{:.3f}
-         M03 G04 P0.1 G0Z-1
+         M03G04P0.1G0Z-1
          G1 Y{:.3f}
          M05G0Z1
          G1 X{:.3f}
-         M03 G04 P0.1 G0Z-1
+         M03G04P0.1G0Z-1
          G1 Y{:.3f}
          G1 X{:.3f}
          M05G0Z1
@@ -94,7 +89,7 @@ def char2grbl(x):
 
         '5':
          """(number 5)
-         M03 G04 P0.1 G0Z-1
+         M03G04P0.1G0Z-1
          G1 X{:.3f}
          G1 Y{:.3f}
          G1 X{:.3f}
@@ -106,14 +101,14 @@ def char2grbl(x):
 
         '6':
          """(number 6)
-         M03 G04 P0.1 G0Z-1
+         M03G04P0.1G0Z-1
          G1 X{:.3f}
          G1 Y{:.3f}
          G1 X{:.3f}
          G1 Y{:.3f}
          M05G0Z1
          G1 Y{:.3f}
-         M03 G04 P0.1 G0Z-1
+         M03G04P0.1G0Z-1
          G1 Y{:.3f}
          G1 X{:.3f}
          M05G0Z1
@@ -123,7 +118,7 @@ def char2grbl(x):
         '7':
          """(number 7)
          G0 X{:.3f}
-         M03 G04 P0.1 G0Z-1
+         M03G04P0.1G0Z-1
          G1 X{:.3f} Y{:.3f}
          G1 X{:.3f}
          M05G0Z1
@@ -132,14 +127,14 @@ def char2grbl(x):
 
         '8':
          """(number 8)
-         M03 G04 P0.1 G0Z-1
+         M03G04P0.1G0Z-1
          G1 X{:.3f}
          G1 Y{:.3f}
          G1 X{:.3f}
          G1 Y{:.3f}
          M05G0Z1
          G1 Y{:.3f}
-         M03 G04 P0.1 G0Z-1
+         M03G04P0.1G0Z-1
          G1 X{:.3f}
          M05G0Z1
          G0 X{:.3f} Y{:.3f}
@@ -147,7 +142,7 @@ def char2grbl(x):
 
         '9':
          """(number 9)
-         M03 G04 P0.1 G0Z-1
+         M03G04P0.1G0Z-1
          G1 X{:.3f}
          G1 Y{:.3f}
          G1 X{:.3f}
@@ -172,13 +167,13 @@ def char2grbl(x):
 
         'B': 
          """(letter B)
-         M03 G04 P0.1 G0Z-1
+         M03G04P0.1G0Z-1
          G1 Y{:.3f}
          G1 X{:.3f}
          G2 X{:.3f} Y{:.3f} I{:.3f} J{:.3f} 
          M05G0Z1
          G1 X{:.3f}
-         M03 G04 P0.1 G0Z-1
+         M03G04P0.1G0Z-1
          G1 X{:.3f}
          G2 X{:.3f} Y{:.3f} I{:.3f} J{:.3f} 
          G1 X{:.3f}
@@ -189,7 +184,7 @@ def char2grbl(x):
         'C': 
          """(letter C : tan 60=0.32)
          G1 X{:.3f} Y{:.3f}
-         M03 G04 P0.1 G0Z-1
+         M03G04P0.1G0Z-1
          G2 X{:.3f} Y{:.3f} I{:.3f} J{:.3f} 
          M05G0Z1
          G1 X{:.3f} Y{:.3f}
@@ -197,7 +192,7 @@ def char2grbl(x):
 
         'D': 
          """(letter D)
-         M03 G04 P0.1 G0Z-1
+         M03G04P0.1G0Z-1
          G1 Y{:.3f}
          G1 X{:.3f}
          G2 X{:.3f} Y{:.3f} I{:.3f} J{:.3f} 
@@ -209,13 +204,13 @@ def char2grbl(x):
         'E': 
          """(letter E)
          G1 X{:.3f} Y{:.3f}
-         M03 G04 P0.1 G0Z-1
+         M03G04P0.1G0Z-1
          G1 X{:.3f}
          G1 Y{:.3f}
          G1 X{:.3f}
          M05G0Z1
          G1 X{:.3f}
-         M03 G04 P0.1 G0Z-1
+         M03G04P0.1G0Z-1
          G1 Y{:.3f}
          G1 X{:.3f}
          M05G0Z1
@@ -225,13 +220,13 @@ def char2grbl(x):
         'F': 
          """(letter F)
          G1 X{:.3f} Y{:.3f}
-         M03 G04 P0.1 G0Z-1
+         M03G04P0.1G0Z-1
          G1 X{:.3f}
          G1 Y{:.3f}
          G1 X{:.3f}
          M05G0Z1
          G1 X{:.3f}
-         M03 G04 P0.1 G0Z-1
+         M03G04P0.1G0Z-1
          G1 Y{:.3f}
          M05G0Z1
          G1 X{:.3f}
@@ -240,7 +235,7 @@ def char2grbl(x):
         'G': 
          """(letter G : tan60=0.32)
          G1 X{:.3f} Y{:.3f}
-         M03 G04 P0.1 G0Z-1
+         M03G04P0.1G0Z-1
          G3 X{:.3f} Y{:.3f} I{:.3f} J{:.3f} 
          G1 Y{:.3f}
          G1 X{:.3f}
@@ -250,15 +245,15 @@ def char2grbl(x):
 
         'H': 
          """(letter H)
-         M03 G04 P0.1 G0Z-1
+         M03G04P0.1G0Z-1
          G1 Y{:.3f}
          M05G0Z1
          G1 Y{:.3f}
-         M03 G04 P0.1 G0Z-1
+         M03G04P0.1G0Z-1
          G1 X{:.3f}
          M05G0Z1
          G1 Y{:.3f}
-         M03 G04 P0.1 G0Z-1
+         M03G04P0.1G0Z-1
          G1 Y{:.3f}
          M05G0Z1
          G1 X{:.3f}
@@ -266,15 +261,15 @@ def char2grbl(x):
 
         'I': 
          """(letter I)
-         M03 G04 P0.1 G0Z-1
+         M03G04P0.1G0Z-1
          G1 X{:.3f}
          M05G0Z1
          G1 Y{:.3f}
-         M03 G04 P0.1 G0Z-1
+         M03G04P0.1G0Z-1
          G1 X{:.3f}
          M05G0Z1
          G1 X{:.3f}
-         M03 G04 P0.1 G0Z-1
+         M03G04P0.1G0Z-1
          G1 Y{:.3f}
          M05G0Z1
          G1 X{:.3f}
@@ -283,7 +278,7 @@ def char2grbl(x):
         'J': 
          """(letter J)
          G1 Y{:.3f}
-         M03 G04 P0.1 G0Z-1
+         M03G04P0.1G0Z-1
          G3 X{:.3f} Y{:.3f} I{:.3f} J{:.3f} 
          G1 Y{:.3f}
          G1 X{:.3f}
@@ -293,11 +288,11 @@ def char2grbl(x):
 
         'K': 
          """(letter K)
-         M03 G04 P0.1 G0Z-1
+         M03G04P0.1G0Z-1
          G1 Y{:.3f}
          M05G0Z1
          G1 X{:.3f}
-         M03 G04 P0.1 G0Z-1
+         M03G04P0.1G0Z-1
          G1 X{:.3f} Y{:.3f}
          G1 X{:.3f} Y{:.3f}
          M05G0Z1
@@ -307,7 +302,7 @@ def char2grbl(x):
         'L': 
          """(letter L)
          G1 Y{:.3f}
-         M03 G04 P0.1 G0Z-1
+         M03G04P0.1G0Z-1
          G1 Y{:.3f}
          G1 X{:.3f}
          M05G0Z1
@@ -316,7 +311,7 @@ def char2grbl(x):
 
         'M': 
          """(letter M)
-         M03 G04 P0.1 G0Z-1
+         M03G04P0.1G0Z-1
          G1 Y{:.3f}
          G1 X{:.3f} Y{:.3f}
          G1 X{:.3f} Y{:.3f}
@@ -327,7 +322,7 @@ def char2grbl(x):
 
         'N': 
          """(letter N)
-         M03 G04 P0.1 G0Z-1
+         M03G04P0.1G0Z-1
          G1 Y{:.3f}
          G1 X{:.3f} Y{:.3f}
          G1 Y{:.3f}
@@ -338,7 +333,7 @@ def char2grbl(x):
         'O': 
          """(letter O)
          G1 Y{:.3f}
-         M03 G04 P0.1 G0Z-1
+         M03G04P0.1G0Z-1
          G1 Y{:.3f}
          G2 X{:.3f} Y{:.3f} I{:.3f} J{:.3f} 
          G1 Y{:.3f}
@@ -349,7 +344,7 @@ def char2grbl(x):
 
         'P': 
          """(letter P)
-         M03 G04 P0.1 G0Z-1
+         M03G04P0.1G0Z-1
          G1 Y{:.3f}
          G1 X{:.3f}
          G2 X{:.3f} Y{:.3f} I{:.3f} J{:.3f} 
@@ -361,14 +356,14 @@ def char2grbl(x):
         'Q': 
          """(letter Q)
          G1 Y{:.3f}
-         M03 G04 P0.1 G0Z-1
+         M03G04P0.1G0Z-1
          G1 Y{:.3f}
          G2 X{:.3f} Y{:.3f} I{:.3f} J{:.3f} 
          G1 Y{:.3f}
          G2 X{:.3f} Y{:.3f} I{:.3f} J{:.3f} 
          M05G0Z1
          G1 X{:.3f}
-         M03 G04 P0.1 G0Z-1
+         M03G04P0.1G0Z-1
          G1 X{:.3f} Y{:.3f}
          M05G0Z1
          G1 X{:.3f}
@@ -376,14 +371,14 @@ def char2grbl(x):
 
         'R': 
          """(letter R)
-         M03 G04 P0.1 G0Z-1
+         M03G04P0.1G0Z-1
          G1 Y{:.3f}
          G1 X{:.3f}
          G2 X{:.3f} Y{:.3f} I{:.3f} J{:.3f} 
          G1 X{:.3f}
          M05G0Z1
          G1 X{:.3f}
-         M03 G04 P0.1 G0Z-1
+         M03G04P0.1G0Z-1
          G1 X{:.3f} Y{:.3f}
          M05G0Z1
          G1 X{:.3f}
@@ -391,14 +386,14 @@ def char2grbl(x):
 
         'R': 
          """(letter R)
-         M03 G04 P0.1 G0Z-1
+         M03G04P0.1G0Z-1
          G1 Y{:.3f}
          G1 X{:.3f}
          G2 X{:.3f} Y{:.3f} I{:.3f} J{:.3f} 
          G1 X{:.3f}
          M05G0Z1
          G1 X{:.3f}
-         M03 G04 P0.1 G0Z-1
+         M03G04P0.1G0Z-1
          G1 X{:.3f} Y{:.3f}
          M05G0Z1
          G1 X{:.3f}
@@ -406,7 +401,7 @@ def char2grbl(x):
 
         'S': 
          """(letter S)
-         M03 G04 P0.1 G0Z-1
+         M03G04P0.1G0Z-1
          G1 X{:.3f}
          G3 X{:.3f} Y{:.3f} I{:.3f} J{:.3f} 
          G1 X{:.3f}
@@ -419,11 +414,11 @@ def char2grbl(x):
         'T': 
          """(letter T)
          G1 X{:.3f}
-         M03 G04 P0.1 G0Z-1
+         M03G04P0.1G0Z-1
          G1 Y{:.3f}
          M05G0Z1
          G1 X{:.3f}
-         M03 G04 P0.1 G0Z-1
+         M03G04P0.1G0Z-1
          G1 X{:.3f}
          M05G0Z1
          G1 X{:.3f} Y{:.3f}
@@ -432,12 +427,12 @@ def char2grbl(x):
         'U': 
          """(letter U)
          G1 Y{:.3f}
-         M03 G04 P0.1 G0Z-1
+         M03G04P0.1G0Z-1
          G1 Y{:.3f}
          G3 X{:.3f} Y{:.3f} I{:.3f} J{:.3f} 
          M05G0Z1
          G1 Y{:.3f}
-         M03 G04 P0.1 G0Z-1
+         M03G04P0.1G0Z-1
          G1 Y{:.3f}
          M05G0Z1
          G1 X{:.3f}
@@ -446,7 +441,7 @@ def char2grbl(x):
         'V': 
          """(letter V)
          G1 Y{:.3f}
-         M03 G04 P0.1 G0Z-1
+         M03G04P0.1G0Z-1
          G1 X{:.3f} Y{:.3f}
          G1 X{:.3f} Y{:.3f}
          M05G0Z1
@@ -456,7 +451,7 @@ def char2grbl(x):
         'W': 
          """(letter W)
          G1 Y{:.3f}
-         M03 G04 P0.1 G0Z-1
+         M03G04P0.1G0Z-1
          G1 X{:.3f} Y{:.3f}
          G1 X{:.3f} Y{:.3f}
          G1 X{:.3f} Y{:.3f}
@@ -467,11 +462,11 @@ def char2grbl(x):
 
         'X': 
          """(letter X)
-         M03 G04 P0.1 G0Z-1
+         M03G04P0.1G0Z-1
          G1 X{:.3f} Y{:.3f}
          M05G0Z1
          G1 X{:.3f}
-         M03 G04 P0.1 G0Z-1
+         M03G04P0.1G0Z-1
          G1 X{:.3f} Y{:.3f}
          M05G0Z1
          G1 X{:.3f}
@@ -479,11 +474,11 @@ def char2grbl(x):
 
         'Y': 
          """(letter Y : `/)
-         M03 G04 P0.1 G0Z-1
+         M03G04P0.1G0Z-1
          G1 X{:.3f} Y{:.3f}
          M05G0Z1
          G1 X{:.3f}
-         M03 G04 P0.1 G0Z-1
+         M03G04P0.1G0Z-1
          G1 X{:.3f} Y{:.3f}
          M05G0Z1
          G1 X{:.3f} Y{:.3f}
@@ -492,7 +487,7 @@ def char2grbl(x):
         'Z': 
          """(letter Z)
          G1 Y{:.3f}
-         M03 G04 P0.1 G0Z-1
+         M03G04P0.1G0Z-1
          G1 X{:.3f}
          G1 X{:.3f} Y{:.3f}
          G1 X{:.3f}
@@ -507,7 +502,7 @@ def char2grbl(x):
 
         '_': 
          """(letter underscore)
-         M03 G04 P0.1 G0Z-1
+         M03G04P0.1G0Z-1
          G1 X{:.3f}
          M05G0Z1
          G1 X{:.3f}
@@ -516,7 +511,7 @@ def char2grbl(x):
         '-': 
          """(letter minus)
          G1 X{:.3f} Y{:.3f}
-         M03 G04 P0.1 G0Z-1
+         M03G04P0.1G0Z-1
          G1 X{:.3f}
          M05G0Z1
          G1 X{:.3f} Y{:.3f}
@@ -525,11 +520,11 @@ def char2grbl(x):
         '=': 
          """(letter equal)
          G1 Y{:.3f}
-         M03 G04 P0.1 G0Z-1
+         M03G04P0.1G0Z-1
          G1 X{:.3f}
          M05G0Z1
          G1 Y{:.3f}
-         M03 G04 P0.1 G0Z-1
+         M03G04P0.1G0Z-1
          G1 X{:.3f}
          M05G0Z1
          G1 X{:.3f} Y{:.3f}
@@ -537,7 +532,7 @@ def char2grbl(x):
 
         '/': 
          """(divided)
-         M03 G04 P0.1 G0Z-1
+         M03G04P0.1G0Z-1
          G1 X{:.3f} Y{:.3f}
          M05G0Z1
          G1 X{:.3f} Y{:.3f}
@@ -546,15 +541,15 @@ def char2grbl(x):
         '*': 
          """(mult)
          G1 X{:.3f} Y{:.3f}
-         M03 G04 P0.1 G0Z-1
+         M03G04P0.1G0Z-1
          G1 X{:.3f} Y{:.3f}
          M05G0Z1
          G1 X{:.3f} Y{:.3f}
-         M03 G04 P0.1 G0Z-1
+         M03G04P0.1G0Z-1
          G1 Y{:.3f}
          M05G0Z1
          G1 X{:.3f} Y{:.3f}
-         M03 G04 P0.1 G0Z-1
+         M03G04P0.1G0Z-1
          G1 X{:.3f} Y{:.3f}
          M05G0Z1
          G1 X{:.3f} Y{:.3f}
@@ -562,15 +557,15 @@ def char2grbl(x):
 
         '%': 
          """(percent 0/o)
-         M03 G04 P0.1 G0Z-1
+         M03G04P0.1G0Z-1
          G1 X{:.3f} Y{:.3f}
          M05G0Z1
          G1 X{:.3f} Y{:.3f}
-         M03 G04 P0.1 G0Z-1
+         M03G04P0.1G0Z-1
          G2 X0Y0I0 J{:.3f}
          M05G0Z1
          G1 X{:.3f} Y{:.3f}
-         M03 G04 P0.1 G0Z-1
+         M03G04P0.1G0Z-1
          G2 X0Y0I0 J{:.3f}
          M05G0Z1
          G1 X{:.3f} Y{:.3f}
@@ -579,7 +574,7 @@ def char2grbl(x):
         '@': 
          """(@ at)
          G1 X{:.3f}
-         M03 G04 P0.1 G0Z-1
+         M03G04P0.1G0Z-1
          G1 X{:.3f}
          G2 X{:.3f} Y{:.3f} I{:.3f} J{:.3f}
          G2 X{:.3f} Y{:.3f} I{:.3f} J{:.3f}
@@ -588,9 +583,21 @@ def char2grbl(x):
          G1 X{:.3f} Y{:.3f}
          """.format(2*sx, -0.5*sx , 1.5*sx, 1.5*sy, 0*sx, 1.5*sy, -1*sx, 0*sy, -0.5*sx, 0*sy, -0.5*sx, (1.5+ss)*sx, -1.5*sy),
 
+        '!': 
+         """(! bang good?)
+         G1 X{:.3f} Y{:.3f}
+         M03G04P0.1G0Z-1
+         G2 X0Y0I0J{:.3f}
+         G1 X{:.3f} Y{:.3f}
+         G3 X{:.3f} Y0 I{:.3f} J0
+         G1 X{:.3f} Y{:.3f}
+         M05G0Z1
+         G1 X{:.3f} Y{:.3f}
+         """.format(1.5*sx, 1*sy, -0.25*sy, 0.5*sx, 2*sy, -1*sx, -0.5*sx, 0.5*sx, -2*sy, (1.5+ss)*sx, -1*sy),
+
         '$': 
-         """(easter egg round square wrap up)
-         M03 G04 P0.1 G0Z-1
+         """(easter egg round square wrap up {:.3f})
+         M03G04P0.1G0Z-1
          G1 Y{:.3f}
          G3 X{:.3f} Y{:.3f} I{:.3f} J{:.3f}
          G1 X{:.3f}
@@ -600,33 +607,37 @@ def char2grbl(x):
          G1 X{:.3f}
          G3 X{:.3f} Y{:.3f} I{:.3f} J{:.3f}
          M05G0Z1
-         """.format(4*sy , -ss*sx, ss*sy, -ss*sx, 0*sy, -NBE*5*sx, -ss*sx, -ss*sy,0*sx, -ss*sy, -4*sy, ss*sx, -ss*sy, ss*sx, 0*sy,NBE*5*sx,ss*sx, ss*sy, 0*sx, ss*sy),
+         """.format(NBE, 4*sy , -ss*sx, ss*sy, -ss*sx, 0*sy, -NBE*5*sx, -ss*sx, -ss*sy,0*sx, -ss*sy, -4*sy, ss*sx, -ss*sy, ss*sx, 0*sy,NBE*5*sx,ss*sx, ss*sy, 0*sx, ss*sy),
 
     }.get(x, "({} not yet defined)".format(x))
 
 
 
-def printGrblFromString(str):
+def printGrblFromString(str, NBE=2):
     for char in str:
-        print(char2grbl(char))
+        print(char2grbl(char, NBE))
 
-def line2grbl(line):
-    lines = line.split('\n')
-# TODO : return every \n with len(line) characters*(3*sx+ss)
-#    [ [line, len(line)] for line in lines.split('\n') ]
-    for s in lines[0:-1]:
-        print("("+s+")")
-        printGrblFromString(s)
-        print "G1 X{:.3f} Y{:.3f}".format(-len(s)*(3+ss)*sx, -(4*sy+ssy))
-    printGrblFromString(lines[-1])
+def line2grbl(inline):
+    ast=[ [line, len(line)] for line in inline.split('\n') ]
+    NBC=False
+    for leaf in ast:
+        nbline=0
+        if (NBC or leaf[0]=='') :
+            print "(goback of {0}-chars)".format(NBC)
+            print "G1 X{:.3f} Y{:.3f}".format(-NBC*(3+ss)*sx, -(4*sy+ssy))
+        NBC=leaf[1]
+        NBE=NBC-1
+        print "(NBE="+str(NBE)+")"
+        printGrblFromString(leaf[0], NBC-1)
 
 
 print("G91\nF500\ng21") # <== a mettre dans un header
 
 #stdinString=raw_input()
-stdinString=sys.stdin.read()[0:-1]  # remove EOF
-NBC=len(stdinString)
-NBE=NBC-1 #<== number of character minus easter character
-#printGrblFromString(stdinString)
+#stdinString=sys.stdin.read()[0:-1]  # remove EOF
+stdinString=sys.stdin.read()
+NBE=0
 line2grbl(stdinString)
-print("({}-char to engrave)".format(NBC))
+# $> echo -e -n  "AB\nCPH0$" | ./alphNum2gcode.py -ssy=4 > newLines.nc
+# echo -e -n  'HELLO\n\nWORLD!$' | ./alphNum2gcode.py -ssy=4 > newLines.nc
+

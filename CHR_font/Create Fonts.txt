@@ -1,0 +1,36 @@
+
+Font Files
+==========
+
+	StickFont comes with only one font file, but new files may be added any time.  The font files have the extension ".CHR" and should be in the same folder as the StickFont.exe program file.  If you have more than one font installed, you can switch to a different font by using the menu File / Open Font File.
+
+	The font files are in an ASCII format and can be edited with any text editor.  Each line in the file describes one character.  Each character is made up of a series of coordinate pairs that are the endpoints of the lines that make up the character.  The coordinates are based on a grid that is 21 units high and variable in width.  A character that is 21 units high will scale to be whatever you enter as the text height. 
+
+
+A typical character in the .CHR file looks like this:
+
+CHR_41 18; 1,0 9,21 17,0; 4,7 14,7
+
+	Starting from the beginning of the line:
+
+	CHR_41
+		The first four characters "CHR_" should always be the same.  The next two characters are the characters ASCII code in hexadecimal.
+
+	18;
+		The remaining values are all in decimal.  The first value after the character code is the characters width followed by a semicolon.  This value should include any padding space before and after the character.
+
+	1,0
+		The first coordinate pair after a semicolon is the start point of a line segment.
+
+	9,21
+		This coordinate pair is the endpoint of the first line segment.
+
+	17,0;
+		The line continues from the last coordinate pair to this one.  The semicolon indicates that it is the last point in this line segment.
+
+	4,7
+		This point is the start point of a new line segment.
+
+	14,7
+		This point is the endpoint of the line segment and the end of the character.
+
