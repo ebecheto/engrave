@@ -1,9 +1,12 @@
 # engrave
 
-Inspired from sream.py and simple_stream.py, we tuned it so that we could piped text from command line instead of using the provided software provided with the laser engraver.
+Inspired from sream.py and simple_stream.py, we tuned it so that we could piped text from command line instead of using the software provided with the laser engraver.
 
 We added a 'very basic home made font' using arc code G02 G03 if possible.
 For more advanced text font/ picture to engrave, we prefere the use of inkscape.
+
+Our prefered setup is to use the raspberry pi connected to the arduino nano of the engraver machine via USB.
+
 
 ``` shell
 # code example
@@ -11,6 +14,15 @@ echo "F@BL@B$" |./alphNum2gcode.py |./streamin.py /dev/ttyUSB1
 echo -n "line1\nline2" |./alphNum2gcode.py |./streamin.py /dev/ttyUSB1 
 
 ```
+
+
+
+
+
+
+![synoptique setup](./engraveSynoptique2.jpg)
+
+
 
 
 
@@ -30,8 +42,7 @@ optional arguments:
   -feed FEED  feed to gcode : F{feed} default 500
 ```
 
+USAGE examples :
 
-
-
-![synoptique setup](./engraveSynoptique2.jpg)
-
+echo -e -n  'HELLO\n\nWORLD!$' | ./alphNum2gcode.py -ssy=4
+echo -e -n 'X__\nX0_\nX[]' | ./alphNum2gcode.py  -ss=0 -ssy=0 -feed 1000  | ./streamin.py 
