@@ -28,12 +28,12 @@ parser = argparse.ArgumentParser(description="""
 Stream g-code file to grbl. (pySerial and argparse libraries required)
 [example USAGE :$>]
 echo "G1X10Y10" | ./streamin.py /dev/ttyUSB1 #<= echo gcode to the machine
-cat grbl.nc | ./streamin.py /dev/ttyUSB1     #<= pipe a grbl 'gcoded' file
+cat grbl.nc     | ./streamin.py              #<= pipe a grbl 'gcoded' file
 """, formatter_class=argparse.RawDescriptionHelpFormatter )
+parser.add_argument('device_file', nargs='?', default="/dev/ttyUSB2",
+        help='serial device path')
 parser.add_argument('gcode_file', nargs='?', type=argparse.FileType('r'), default=sys.stdin,
         help='g-code filename to be streamed, or stdin')
-parser.add_argument('device_file', default="/dev/ttyUSB0",
-        help='serial device path')
 parser.add_argument('-q','--quiet',action='store_true', default=False, 
         help='suppress output text')
 args = parser.parse_args()

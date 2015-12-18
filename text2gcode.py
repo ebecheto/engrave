@@ -2,6 +2,17 @@
 
 import re
 import sys
+import argparse
+parser = argparse.ArgumentParser(description="""
+echo "Text" |./text2gcode.py
+echo "Text" |./text2gcode.py -sz 0.125 |./streamin.py /dev/ttyUSB0 
+""", formatter_class=argparse.RawDescriptionHelpFormatter )
+parser.add_argument('-sz', type=float, default= 1./8, help='font size 1./4 dft')
+parser.add_argument('-spacing', type=float, default= 20, help='spacing 20 dft')
+args = parser.parse_args()
+
+ftsize=args.sz
+spacing=args.spacing
 
 
 
@@ -22,7 +33,7 @@ def load_font(font_file, size, spacing):
                 # go to first point of draw and start laser
                 x, y = map(float, draw[0].split(','))
                 gcode += "G1 X{:.3f} Y{:.3f}\n".format(x*size,y*size)
-                gcode += "M3 G4 P.1 G0Z-1\n"
+                gcode += "M3 G4 P.05 G0Z-1\n"
                 # go through every points in draw
                 for point in draw[1:]:
                     x, y = map(float, point.split(','))
@@ -39,7 +50,7 @@ def string2grbl(str, font):
     for c in str:
         print(font[c])
 
-font = load_font("CHR_font/default.chr", 1./10, 20)
+font = load_font("CHR_font/default.chr", ftsize, spacing)
 
 print "G21"
 print "F1000"

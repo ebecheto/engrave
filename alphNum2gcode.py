@@ -8,13 +8,18 @@ parser.add_argument('-sx', type=float, default=1.0, help='sx scale, 1.0 if not s
 parser.add_argument('-sy', type=float, help='sy scale = sx if not specified')
 parser.add_argument('-ss', type=float, help='ss : spacing between char, default=2.0/sx')
 parser.add_argument('-ssy', type=float, help='newline space, default = ss ')
+parser.add_argument('-feed', type=float, default=500.0, help='feed to gcode : F{feed} default 500 ')
 args = parser.parse_args()
+
+# debug __vv__
+# print str(args.sx) + "|" + str(args.sy) + "|" + str(args.ss) + "|" + str(args.ssy) + "|" + str(args.feed)
 
 sy=args.sy if args.sy else args.sx
 sx=args.sx
-ss = args.ss if args.ss else 2.0/sx #<== step in X axis after each letters 
+ss = args.ss if args.ss!=None else 2.0/sx #<== step in X axis after each letters 
 ssy = args.ssy if args.ssy else ss
-#<== number of step of \n for newline goback feature
+#<== ^ number of step of \n for newline goback feature
+feed = args.feed
 
 varViewer=True
 #Ton='M03 G04 P0.1'+' G0Z0' if varViewer is True else ''
@@ -154,14 +159,14 @@ G0 X{:.3f} Y{:.3f}
 
         'A': 
          """(letter A)
-         {}
+         {}(ON)
          G1 X{:.3f} Y{:.3f}
          G1 X{:.3f} Y{:.3f}
-         {}
+         {}(OFF)
          G1 X{:.3f} Y{:.3f}
-         {}
+         {}(ON)
          G1 X{:.3f}
-         {}
+         {}(OFF)
          G0 X{:.3f} Y{:.3f}
          """.format(Ton, 1.5*sx, 4*sy, 1.5*sx, -4*sy, Tof, -2.25*sx, 2*sy,Ton,  1.5*sx, Tof, (ss+0.75)*sx, -2*sy),
 
@@ -584,16 +589,40 @@ G0 X{:.3f} Y{:.3f}
          """.format(2*sx, -0.5*sx , 1.5*sx, 1.5*sy, 0*sx, 1.5*sy, -1*sx, 0*sy, -0.5*sx, 0*sy, -0.5*sx, (1.5+ss)*sx, -1.5*sy),
 
         '!': 
-         """(! bang good?)
+         """(exclamation point)
          G1 X{:.3f} Y{:.3f}
          M03G04P0.1G0Z-1
-         G2 X0Y0I0J{:.3f}
+         G2 X0Y0I0 J{:.3f}
+         M05G0Z1
+         G1 X0 Y{:.3f}
+         M03G04P0.1G0Z-1
          G1 X{:.3f} Y{:.3f}
          G3 X{:.3f} Y0 I{:.3f} J0
          G1 X{:.3f} Y{:.3f}
          M05G0Z1
          G1 X{:.3f} Y{:.3f}
-         """.format(1.5*sx, 1*sy, -0.25*sy, 0.5*sx, 2*sy, -1*sx, -0.5*sx, 0.5*sx, -2*sy, (1.5+ss)*sx, -1*sy),
+         """.format(1.5*sx, 0.75*sy, -0.25*sy, 0.25*sy, 0.5*sx, 2*sy, -1*sx, -0.5*sx, 0.5*sx, -2*sy, (1.5+ss)*sx, -1*sy),
+
+        '[': 
+         """( open square bracket )
+         G1 X{:.3f} Y{:.3f}
+         M03G04P0.1G0Z-1
+         G1 X{:.3f}
+         G1 Y{:.3f}
+         G1 X{:.3f}
+         M05G0Z1
+         G1 X{:.3f}
+         """.format(3*sx, 4*sy, -3*sx, -4*sy, 3*sx, ss*sx),
+
+        ']': 
+         """( close square bracket )
+         M03G04P0.1G0Z-1
+         G1 X{:.3f}
+         G1 Y{:.3f}
+         G1 X{:.3f}
+         M05G0Z1
+         G1 X{:.3f} Y{:.3f}
+         """.format(3*sx, 4*sy, -3*sx, (3+ss)*sx, -4*sy),
 
         '$': 
          """(easter egg round square wrap up {:.3f})
@@ -607,7 +636,7 @@ G0 X{:.3f} Y{:.3f}
          G1 X{:.3f}
          G3 X{:.3f} Y{:.3f} I{:.3f} J{:.3f}
          M05G0Z1
-         """.format(NBE, 4*sy , -ss*sx, ss*sy, -ss*sx, 0*sy, -NBE*5*sx, -ss*sx, -ss*sy,0*sx, -ss*sy, -4*sy, ss*sx, -ss*sy, ss*sx, 0*sy,NBE*5*sx,ss*sx, ss*sy, 0*sx, ss*sy),
+         """.format(NBE, 4*sy , -ss*sx, ss*sy, -ss*sx, 0*sy, -NBE*(3+ss)*sx, -ss*sx, -ss*sy,0*sx, -ss*sy, -4*sy, ss*sx, -ss*sy, ss*sx, 0*sy,NBE*(3+ss)*sx-ss*sx,ss*sx, ss*sy, 0*sx, ss*sy),
 
     }.get(x, "({} not yet defined)".format(x))
 
@@ -631,13 +660,24 @@ def line2grbl(inline):
         printGrblFromString(leaf[0], NBC-1)
 
 
-print("G91\nF500\ng21") # <== a mettre dans un header
 
 #stdinString=raw_input()
 #stdinString=sys.stdin.read()[0:-1]  # remove EOF
 stdinString=sys.stdin.read()
+
+# debug
+# print("( {:d}-chars, {:.3f}-spaced )".format(len(stdinString), ss) )
+
+print("G91\nF{:.3f}\ng21".format(feed)) # <== a mettre dans un header
+
+
+
 NBE=0
 line2grbl(stdinString)
 # $> echo -e -n  "AB\nCPH0$" | ./alphNum2gcode.py -ssy=4 > newLines.nc
 # echo -e -n  'HELLO\n\nWORLD!$' | ./alphNum2gcode.py -ssy=4 > newLines.nc
+# echo -e -n 'X__\nX0_\nX[]' | ./alphNum2gcode.py  -ss=0 -ssy=0 -feed 1000  | ./streamin.py 
+# echo -e -n '___\nABC$\n DEF$\ n!!!' | ./alphNum2gcode.py   -feed 1000  | ./streamin.py 
+# weared behaviour of the easter egg
+# echo -e -n 'F@BL@B$' | ./alphNum2gcode.py  -sx 4  -feed 100  | ./streamin.py 
 
