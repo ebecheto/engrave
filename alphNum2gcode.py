@@ -16,7 +16,7 @@ args = parser.parse_args()
 
 sy=args.sy if args.sy else args.sx
 sx=args.sx
-ss = args.ss if args.ss!=None else 2.0/sx #<== step in X axis after each letters 
+ss = args.ss if args.ss!=None else 2.2*sx #<== step in X axis after each letters 
 ssy = args.ssy if args.ssy else ss
 #<== ^ number of step of \n for newline goback feature
 feed = args.feed
@@ -69,14 +69,13 @@ G0 X{:.3f} Y{:.3f}
          G1 X{:.3f}
          G1 Y{:.3f}
          G1 X{:.3f}
+         M05G0Z1
+         G1 Y{:.3f}
          M03G04P0.1G0Z-1
          G1 X{:.3f}
          M05G0Z1
-         G1 Y{:.3f}
-         G1 X{:.3f}
-         M05G0Z1
          G0 X{:.3f} Y{:.3f}
-         """.format(3*sx, 2*sy, -3*sx, 3*sx, 2*sy, -3*sx, (2+ss)*sx, -4*sy),
+         """.format(3*sx, 4*sy, -3*sx, -2*sy, 3*sx, (0+ss)*sx, -2*sy),
 
         '4':
          """(number 4)
@@ -623,6 +622,58 @@ G0 X{:.3f} Y{:.3f}
          M05G0Z1
          G1 X{:.3f} Y{:.3f}
          """.format(3*sx, 4*sy, -3*sx, (3+ss)*sx, -4*sy),
+
+        'x': 
+         """( x minuscule )
+         M03G04P0.1G0Z-1
+         G1 X{:.3f} Y{:.3f}
+         M05G0Z1
+         G1 X{:.3f}
+         M03G04P0.1G0Z-1
+         G1 X{:.3f} Y{:.3f}
+         M05G0Z1
+         G1 X{:.3f}
+         """.format(3*sx, 3*sy, -3*sx, 3*sx, -3*sy, (0+ss)*sx),
+
+        # '#': 
+        #  """( # diese hashtag )
+        #  M03G04P0.1G0Z-1
+        #  G1 X{:.3f} Y{:.3f}
+        #  M05G0Z1
+        #  G1 X{:.3f} Y{:.3f}
+        #  M03G04P0.1G0Z-1
+        #  G1 X{:.3f} Y{:.3f}
+        #  M05G0Z1
+        #  G1 Y{:.3f}
+        #  M03G04P0.1G0Z-1
+        #  G1 X{:.3f}
+        #  M05G0Z1
+        #  G1 Y{:.3f}
+        #  M03G04P0.1G0Z-1
+        #  G1 X{:.3f}
+        #  M05G0Z1
+        #  G1 X{:.3f} Y{:.3f}
+        #  """.format(2*sx, 3*sy, -1*sx, -3*sy, 2*sx, 3*sy, -2*sy, -3*sx, 1*sy, 3*sx, (0+ss)*sx, -2*sy),
+
+         '#': 
+         """( # diese hashtag )
+         M03G04P0.1G0Z-1
+         G1 X{:.3f} Y{:.3f}
+         M05G0Z1
+         G1 X{:.3f} Y{:.3f}
+         M03G04P0.1G0Z-1
+         G1 X{:.3f} Y{:.3f}
+         M05G0Z1
+         G1 Y{:.3f}
+         M03G04P0.1G0Z-1
+         G1 X{:.3f}
+         M05G0Z1
+         G1 Y{:.3f}
+         M03G04P0.1G0Z-1
+         G1 X{:.3f}
+         M05G0Z1
+         G1 X{:.3f} Y{:.3f}
+         """.format(2*sx, 4*sy, -1*sx, -4*sy, 2*sx, 4*sy, -2.5*sy, -3*sx, 1*sy, 3*sx, (0+ss)*sx, -2.5*sy),
 
         '$': 
          """(easter egg round square wrap up {:.3f})
