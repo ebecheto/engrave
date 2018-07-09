@@ -15,7 +15,11 @@ echo -n "line1\nline2" |./alphNum2gcode.py |./streamin.py /dev/ttyUSB1
 
 ```
 
+When generating a gcode with inskscapte, we need to remove the comment from the file, because they are not removed with streamin.py ==>
 
+```
+cat ReineDesCrepes_floc3.ngc |sed -e 's/(.*//g' | ~/git/engrave/streamin.py /dev/ttyUSB0 
+```
 
 
 
